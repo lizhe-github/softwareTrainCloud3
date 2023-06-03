@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: userCloud
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+#      server-addr: localhost:8848
+      config:  #nacos配置管理
+        server-addr: 127.0.0.1:8848
+        #docker部署不用映射端口号 因为微服务之间是内部访问nacos docker内部访问机制决定这里的主机名只需要指定docker nacos的容器名称即可 mysql同理
+#        server-addr: mnacos:8848
+        file-extension: yaml
+pattern:
+  name: 本地配置不优先

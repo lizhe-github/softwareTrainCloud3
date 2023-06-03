@@ -1,0 +1,7 @@
+
+logging:
+  pattern:
+    level: debug
+  level:
+    web: debug
+

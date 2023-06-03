@@ -1,0 +1,90 @@
+server:
+  port: 10010 # 网关端口
+spring:
+  application:
+    name: gateway # 服务名称
+  #nacos 服务发现   和 配置管理可能的配置  -----------开始----------
+  cloud: #配置nacos注册中心服务端地址
+    nacos:
+      #      server-addr: 127.0.0.1:8848
+      discovery:
+        server-addr: 127.0.0.1:8848
+        #docker部署不用映射端口号 因为微服务之间是内部访问nacos docker内部访问机制决定这里的主机名只需要指定docker nacos的容器名称即可 mysql同理
+        #        server-addr: mnacos:8848
+        enabled: true
+      #        cluster-name: SH #配置集群名称 自定义
+      #      username:  nacos管理网站登录地址
+      #      password:
+      config: #nacos配置管理
+        server-addr: 127.0.0.1:8848
+        #docker部署不用映射端口号 因为微服务之间是内部访问nacos docker内部访问机制决定这里的主机名只需要指定docker nacos的容器名称即可 mysql同理
+        #        server-addr: mnacos:8848
+        file-extension: yaml
+
+    gateway:
+      #        - 这个符号表示routes书信更是一个数组 如：
+#      - 1
+#      - 2
+#      则routes得到的是routes:[1,2]
+#      在这里-后面接的是一个兑现给依然使用 id:这个yml的配置  主要在理解
+      routes: # 网关路由配置
+        - id: user-cloud # 路由id，自定义，只要唯一即可
+#          uri: http://127.0.0.1:8081 # 路由的目标地址 http就是固定地址
+          uri: lb://userCloud # 路由的目标地址 lb就是负载均衡，后面跟服务名称
+          predicates: # 路由断言，也就是判断请求是否符合路由规则的条件
+            - Path=/usercloud/** # 这个是按照路径匹配，只要以/user/开头就符合要求
+        - id: order-cloud
+          uri: lb://orderCloud
+          predicates:
+            - Path=/ordercloud/**
+        - id: business-cloud
+          uri: lb://businessCloud
+          predicates:
+            - Path=/businesscloud/**
+        - id: food-cloud
+          uri: lb://foodCloud
+          predicates:
+            - Path=/foodcloud/**
+        - id: admin-cloud
+          uri: lb://adminCloud
+          predicates:
+            - Path=/admincloud/**
+#          filters:  #针对 某个微服务的路由的过滤器
+#            - AddRequestHeader=Truth, Itcast is freaking awesome! # 添加请求头 给请求的请求头
+      default-filters: #所有路由的过滤器
+        - AddRequestHeader=Truth, Itcast is freaking awesome!
+#      gateway 跨域处理 配置之后 其它微服务就不用单个的去配置跨域了
+      globalcors: # 全局的跨域处理
+        add-to-simple-url-handler-mapping: true # 解决options请求被拦截问题
+#        浏览器会先使用option询问服务器是否允许跨域 所以如果服务器网关拦截了 这个option请求 则会导致处理跨域问题失败
+        corsConfigurations:
+          '[/**]': #针对所有的请求进行配置
+            allowedOrigins: # 允许哪些网站的跨域请求
+              - "http://localhost:8090"
+#              - "*" 高版本 *在这里配置会报错
+            allowedOriginPatterns:  #新版本要向对所有的源都允许跨域 需要使用allowedOriginPatterns 根据控制台报错的得知
+              - "*"
+            allowedMethods: # 允许的跨域ajax的请求方式
+              - "GET"
+              - "POST"
+              - "DELETE"
+              - "PUT"
+              - "OPTIONS"
+            allowedHeaders: "*" # 允许在请求中携带的头信息
+            allowCredentials: true # 是否允许携带cookie
+            maxAge: 360000 # 这次跨域检测的有效期  防止每一次请求浏览器都用option请示一下是否允许跨域
+    loadbalancer: #是否集成nacos 的负载均衡
+      nacos:
+        enabled: true
+
+
+#spring lombox日志级别 配置
+# logging  Spring Boot自带spring-boot-starter-logging库实现系统日志功能
+logging:
+  level:  #日志级别 配置指定某个包下的日志级别 级别预告日志越不会详细
+    com.com.example: debug
+    root: info # 指定整个项目的日志级别为warn
+  config: classpath:logging-config.xml
+  file: #配置日志输出文件
+    name: ${logging.file.path}/${spring.application.name}.log
+    path: logs

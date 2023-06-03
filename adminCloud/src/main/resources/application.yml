@@ -1,0 +1,66 @@
+server:
+  port: 8083
+  servlet:
+    context-path: /admincloud
+spring:
+  application:
+    name: adminCloud
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/admincloud
+    username: root
+    password: ltymysql123
+
+  #nacos 服务发现   和 配置管理可能的配置  -----------开始----------
+  cloud: #配置nacos注册中心服务端地址
+    nacos:
+      #      server-addr: 127.0.0.1:8848
+      discovery:
+        server-addr: 127.0.0.1:8848
+        #docker部署不用映射端口号 因为微服务之间是内部访问nacos docker内部访问机制决定这里的主机名只需要指定docker nacos的容器名称即可 mysql同理
+        #        server-addr: mnacos:8848
+        enabled: true
+      #        cluster-name: SH #配置集群名称 自定义
+      #      username:  nacos管理网站登录地址
+      #      password:
+      config: #nacos配置管理
+        server-addr: 127.0.0.1:8848
+        #docker部署不用映射端口号 因为微服务之间是内部访问nacos docker内部访问机制决定这里的主机名只需要指定docker nacos的容器名称即可 mysql同理
+        #        server-addr: mnacos:8848
+        file-extension: yaml
+    loadbalancer: #是否集成nacos 的负载均衡
+      nacos:
+        enabled: true
+
+# openfeign配置 -------------------
+#feign:
+#  client:
+#    config:
+#      default: # 这里用default就是全局配置，如果是写服务名称，则是针对某个微服务的配置
+#        loggerLevel: FULL #  日志级别
+feign:
+  httpclient:
+    enabled: true # 开启feign对HttpClient的支持
+    max-connections: 200 # 最大的连接数
+    max-connections-per-route: 50 # 每个路径的最大连接数
+    #  okhttp:
+    #    enabled: true
+    # openfeign配置 -------------------
+
+
+# logging  Spring Boot自带spring-boot-starter-logging库实现系统日志功能
+logging:
+  level:  #日志级别 配置指定某个包下的日志级别 级别预告日志越不会详细
+    com.com.example: debug
+    root: info # 指定整个项目的日志级别为warn
+  config: classpath:logging-config.xml
+  file: #配置日志输出文件
+    name: ${logging.file.path}/${spring.application.name}.log
+    path: logs
+
+#配置日志输出
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.example.entity
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
