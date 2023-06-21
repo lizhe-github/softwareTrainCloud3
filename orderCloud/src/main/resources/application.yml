@@ -7,7 +7,8 @@ spring:
     name: orderCloud
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/ordercloud
+    #使用mycat测试
+    url: jdbc:mysql://192.168.91.135:8066/ordercloud #jdbc:mysql://127.0.0.1:3306/ordercloud
     username: root
     password: ltymysql123
 
@@ -16,7 +17,7 @@ spring:
     nacos:
       #      server-addr: 127.0.0.1:8848
       discovery:
-        server-addr: 127.0.0.1:8848
+        server-addr: 192.168.91.139 #127.0.0.1:8848  使用nginx反向代理的nacos负载均衡集群测试
         #docker部署不用映射端口号 因为微服务之间是内部访问nacos docker内部访问机制决定这里的主机名只需要指定docker nacos的容器名称即可 mysql同理
         #        server-addr: mnacos:8848
         enabled: true
@@ -24,7 +25,7 @@ spring:
     #      username:  nacos管理网站登录地址
     #      password:
       config: #nacos配置管理
-        server-addr: 127.0.0.1:8848
+        server-addr: 192.168.91.139 #127.0.0.1:8848  使用nginx反向代理的nacos负载均衡集群测试
         #docker部署不用映射端口号 因为微服务之间是内部访问nacos docker内部访问机制决定这里的主机名只需要指定docker nacos的容器名称即可 mysql同理
         #        server-addr: mnacos:8848
         file-extension: yaml
